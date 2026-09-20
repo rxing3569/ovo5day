@@ -71,6 +71,18 @@ ul {
   transform: rotate(-0.6deg);
 }
 
+.access-gate__dialog.is-shaking {
+  animation: access-gate-shake 0.42s ease-in-out;
+}
+
+@keyframes access-gate-shake {
+  0%, 100% { transform: translateX(0) rotate(-0.6deg); }
+  20% { transform: translateX(-10px) rotate(-1.5deg); }
+  40% { transform: translateX(9px) rotate(0.8deg); }
+  60% { transform: translateX(-7px) rotate(-1.2deg); }
+  80% { transform: translateX(5px) rotate(0.4deg); }
+}
+
 .access-gate__tape {
   position: absolute;
   top: -13px;
@@ -129,7 +141,8 @@ ul {
   box-shadow: 0 0 0 4px rgb(88 178 220 / 14%);
 }
 
-.access-gate form p {
+.access-gate__error {
+  min-height: 19px;
   margin-top: 9px;
   color: var(--red);
   font-size: 12px;

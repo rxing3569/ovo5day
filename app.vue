@@ -180,6 +180,7 @@ const MOMENTS_PAGE_COUNT = 20;
 const easterStorageKey = "fiveDay.sticker11HintSeen";
 const profileUnlockedStorageKey = "fiveDay.sticker11ProfileUnlocked";
 const dateInvitationStorageKey = "fiveDay.dateInvitationSubmitted";
+const accessGrantedStorageKey = "fiveDay.accessGranted";
 const accessAnswerHash = "de4c4aca3f982a1312cc8925ef3bd26d";
 const runtimeConfig = useRuntimeConfig();
 const route = useRoute();
@@ -210,6 +211,7 @@ const pageHeight = ref<string>();
 const isAccessGranted = ref(false);
 const accessAnswer = ref("");
 const accessError = ref("");
+const isAccessShaking = ref(false);
 const accessInput = ref<HTMLInputElement>();
 const sheetTransform = ref<string>();
 const sheet = ref<HTMLElement>();
@@ -376,10 +378,14 @@ const verifyAccessAnswer = async () => {
   if (md5(accessAnswer.value.trim()) !== accessAnswerHash) {
     accessError.value = "答案好像不太對，再想一下 ♡";
     accessAnswer.value = "";
+    isAccessShaking.value = false;
+    await nextTick();
+    isAccessShaking.value = true;
     await nextTick();
     accessInput.value?.focus();
     return;
   }
+  sessionStorage.setItem(accessGrantedStorageKey, "1");
   isAccessGranted.value = true;
   accessError.value = "";
   document.body.style.overflow = previousBodyOverflow;
@@ -683,8 +689,12 @@ const handleEasterKeydown = (event: KeyboardEvent) => {
 
 onMounted(() => {
   previousBodyOverflow = document.body.style.overflow;
-  document.body.style.overflow = "hidden";
-  nextTick(() => accessInput.value?.focus());
+  isAccessGranted.value =
+    sessionStorage.getItem(accessGrantedStorageKey) === "1";
+  if (!isAccessGranted.value) {
+    document.body.style.overflow = "hidden";
+    nextTick(() => accessInput.value?.focus());
+  }
   savedDateInvitation.value = readSavedDateInvitation();
   if (musicPlayer.value) musicPlayer.value.volume = 0.35;
   if (!isWallpaperPage.value && easterView.value) {
@@ -750,9 +760,11 @@ onBeforeUnmount(() => {
     <div v-if="!isAccessGranted" class="access-gate" role="presentation">
       <section
         class="access-gate__dialog"
+        :class="{ 'is-shaking': isAccessShaking }"
         role="dialog"
         aria-modal="true"
         aria-labelledby="access-gate-title"
+        @animationend="isAccessShaking = false"
       >
         <span class="access-gate__tape" aria-hidden="true" />
         <p class="access-gate__eyebrow">A LITTLE QUESTION FOR YOU</p>
@@ -770,7 +782,12 @@ onBeforeUnmount(() => {
             :aria-describedby="accessError ? 'access-error' : undefined"
             @input="accessError = ''"
           />
-          <p v-if="accessError" id="access-error" role="alert">
+          <p
+            id="access-error"
+            class="access-gate__error"
+            role="alert"
+            aria-live="polite"
+          >
             {{ accessError }}
           </p>
           <button type="submit" :disabled="!accessAnswer.trim()">
