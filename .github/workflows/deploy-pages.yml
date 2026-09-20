@@ -36,7 +36,7 @@ jobs:
       - name: Generate static site
         run: npm run generate
         env:
-          NUXT_APP_BASE_URL: /ovo5day/
+          NUXT_APP_BASE_URL: /
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
