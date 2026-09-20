@@ -7,6 +7,7 @@ import {
   ref,
   watch,
 } from "vue";
+import { md5 } from "js-md5";
 import fiveDayLogo from "./5day.png";
 import heartImage from "./assets/images/heart.png";
 import musicTrack from "./Nobody_else_in_my_heart.mp3";
@@ -179,6 +180,7 @@ const MOMENTS_PAGE_COUNT = 20;
 const easterStorageKey = "fiveDay.sticker11HintSeen";
 const profileUnlockedStorageKey = "fiveDay.sticker11ProfileUnlocked";
 const dateInvitationStorageKey = "fiveDay.dateInvitationSubmitted";
+const accessAnswerHash = "de4c4aca3f982a1312cc8925ef3bd26d";
 const runtimeConfig = useRuntimeConfig();
 const route = useRoute();
 const isWallpaperPage = computed(() => route.path === "/wallpaper");
@@ -205,6 +207,10 @@ const marqueeItems = Object.entries(stickerImages)
   }));
 
 const pageHeight = ref<string>();
+const isAccessGranted = ref(false);
+const accessAnswer = ref("");
+const accessError = ref("");
+const accessInput = ref<HTMLInputElement>();
 const sheetTransform = ref<string>();
 const sheet = ref<HTMLElement>();
 const dialog = ref<HTMLElement>();
@@ -365,6 +371,21 @@ const observeRevealItems = () => {
   document
     .querySelectorAll<HTMLElement>("[data-reveal]")
     .forEach((item) => observer?.observe(item));
+};
+const verifyAccessAnswer = async () => {
+  if (md5(accessAnswer.value.trim()) !== accessAnswerHash) {
+    accessError.value = "答案好像不太對，再想一下 ♡";
+    accessAnswer.value = "";
+    await nextTick();
+    accessInput.value?.focus();
+    return;
+  }
+  isAccessGranted.value = true;
+  accessError.value = "";
+  document.body.style.overflow = previousBodyOverflow;
+  await nextTick();
+  observeRevealItems();
+  requestSync();
 };
 
 const openPlan = async (plan: DatePlan, event: MouseEvent) => {
@@ -661,6 +682,9 @@ const handleEasterKeydown = (event: KeyboardEvent) => {
 };
 
 onMounted(() => {
+  previousBodyOverflow = document.body.style.overflow;
+  document.body.style.overflow = "hidden";
+  nextTick(() => accessInput.value?.focus());
   savedDateInvitation.value = readSavedDateInvitation();
   if (musicPlayer.value) musicPlayer.value.volume = 0.35;
   if (!isWallpaperPage.value && easterView.value) {
@@ -722,6 +746,40 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <Teleport to="body">
+    <div v-if="!isAccessGranted" class="access-gate" role="presentation">
+      <section
+        class="access-gate__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="access-gate-title"
+      >
+        <span class="access-gate__tape" aria-hidden="true" />
+        <p class="access-gate__eyebrow">A LITTLE QUESTION FOR YOU</p>
+        <h1 id="access-gate-title">請問妳幫我取的綽號是什麼？</h1>
+        <form @submit.prevent="verifyAccessAnswer">
+          <label for="access-answer">把答案寫在這裡</label>
+          <input
+            id="access-answer"
+            ref="accessInput"
+            v-model="accessAnswer"
+            type="text"
+            autocomplete="off"
+            enterkeyhint="done"
+            :aria-invalid="Boolean(accessError)"
+            :aria-describedby="accessError ? 'access-error' : undefined"
+            @input="accessError = ''"
+          />
+          <p v-if="accessError" id="access-error" role="alert">
+            {{ accessError }}
+          </p>
+          <button type="submit" :disabled="!accessAnswer.trim()">
+            開啟邀請
+          </button>
+        </form>
+      </section>
+    </div>
+  </Teleport>
   <WallpaperPage v-if="isWallpaperPage" />
   <template v-else>
     <div class="site-canvas" :style="{ height: pageHeight }">
