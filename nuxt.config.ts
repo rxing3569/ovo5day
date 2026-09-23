@@ -35,7 +35,7 @@ export default defineNuxtConfig({
   },
   nitro: {
     prerender: {
-      routes: ["/", "/wallpaper"],
+      routes: ["/", "/date/1", "/wallpaper"],
     },
   },
 });

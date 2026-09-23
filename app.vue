@@ -56,7 +56,7 @@ const plans: DatePlan[] = [
   {
     id: "A",
     label: "PLAN A",
-    title: "台北看展散步日",
+    title: "看展散步日",
     tagline: "來個輕鬆都市之旅。",
     time: "12:15 左右",
     place: "台北火車站",
@@ -73,10 +73,10 @@ const plans: DatePlan[] = [
   {
     id: "B",
     label: "PLAN B",
-    title: "基隆電影跑咖日",
+    title: "電影跑咖日",
     tagline: "看一場電影，再用幾杯咖啡慢慢交換最近的故事。",
     time: "12:00",
-    place: "確定的餐廳集合",
+    place: "餐廳集合",
     itinerary: ["吃飯～吃飯～", "先去看一場電影", "挑間咖啡店聊聊電影"],
     dress: "舒服、適合散步與長時間聊天的穿著",
     note: "我會找餐廳我們一起來討論決定；會在四天前確認電影時間，目前看到場次都約(15:00左右），電影想看暮然回首（描述兩位熱愛漫畫的少女藤野與京本，交織出長達 13 年的真摯青春與命運考驗。）",
@@ -97,7 +97,7 @@ const profileSections: ProfileSection[] = [
   {
     title: "喜歡的事物",
     icon: "♡",
-    items: ["蠟筆小新、可愛的事物（比如我？湊不要臉）", "五月天", "推理小說"],
+    items: ["蠟筆小新、櫻桃小丸子", "五月天", "推理小說"],
   },
   {
     title: "雷點",
@@ -113,10 +113,12 @@ const profileSections: ProfileSection[] = [
     title: "喜歡吃的食物",
     icon: "♨",
     items: [
+      "港式餐點",
       "馬卡龍、甜甜圈、小蛋糕等甜食。",
       "每天吃不膩的大陸餅（？。）",
       "讓她開心到拍照的冬粉（？）。",
       "蝦子等海鮮。",
+      "義美小泡芙（牛奶口味）",
     ],
   },
   {
@@ -138,6 +140,7 @@ const profileSections: ProfileSection[] = [
       "09/13 第一次通話。",
       "09/15 第一次很認真稱讚我。",
       "09/17 第一次送我東西，也表示說對我也有好感。",
+      "09/22 第一次正式幫我取綽號。",
     ],
   },
 ];
@@ -170,6 +173,11 @@ const heartMomentSamples = [
   "09/18 她 IG 便利貼放了「整個世界只有你連上了我」，是跟我說吧？",
   "09/19 她忙了一天很累，還是打給我。",
   "09/20 湊不要臉，各種犯規等級的撩我。",
+  "09/21 又送我貼圖！",
+  "09/21 大方分享她腳腫成麵龜的樣子，讓我覺得她是即便遇到困難還是可以開玩笑地記錄下來生活的人。",
+  "09/21 大方承認 IG 歌是給我聽的。",
+  "09/22 在那邊說要為了我剪短髮，但我還希望她做自己就好。",
+  "09/22 我們互相叫了很曖昧的綽號。",
 ];
 const heartMoments: HeartMoment[] = Array.from({ length: 100 }, (_, index) => ({
   id: index + 1,
@@ -181,7 +189,7 @@ const easterStorageKey = "fiveDay.sticker11HintSeen";
 const profileUnlockedStorageKey = "fiveDay.sticker11ProfileUnlocked";
 const dateInvitationStorageKey = "fiveDay.dateInvitationSubmitted";
 const accessGrantedStorageKey = "fiveDay.accessGranted";
-const accessAnswerHash = "de4c4aca3f982a1312cc8925ef3bd26d";
+const accessAnswerHash = "c5fe62530a85d99669e122853ca95cbc";
 const runtimeConfig = useRuntimeConfig();
 const route = useRoute();
 const isWallpaperPage = computed(() => route.path === "/wallpaper");
@@ -765,7 +773,7 @@ onBeforeUnmount(() => {
       >
         <span class="access-gate__tape" aria-hidden="true" />
         <p class="access-gate__eyebrow">A LITTLE QUESTION FOR YOU</p>
-        <h1 id="access-gate-title">請問妳幫我取的綽號是什麼？</h1>
+        <h1 id="access-gate-title">請問我目前叫妳的綽號是什麼？</h1>
         <form @submit.prevent="verifyAccessAnswer">
           <label for="access-answer">把答案寫在這裡</label>
           <input
