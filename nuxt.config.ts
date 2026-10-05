@@ -24,6 +24,7 @@ export default defineNuxtConfig({
       htmlAttrs: { lang: "zh-Hant" },
       title: "5DAY｜每天都有一點可愛",
       meta: [
+        { name: "robots", content: "noindex, nofollow" },
         {
           name: "description",
           content: "5DAY 日系可愛拼貼風品牌頁面，每天替生活貼上一點喜歡。",
@@ -35,7 +36,7 @@ export default defineNuxtConfig({
   },
   nitro: {
     prerender: {
-      routes: ["/", "/date/1", "/wallpaper"],
+      routes: ["/", "/date/1", "/date/feedback", "/wallpaper"],
     },
   },
 });

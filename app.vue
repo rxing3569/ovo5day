@@ -141,6 +141,13 @@ const profileSections: ProfileSection[] = [
       "09/15 第一次很認真稱讚我。",
       "09/17 第一次送我東西，也表示說對我也有好感。",
       "09/22 第一次正式幫我取綽號。",
+      "09/27 第一次視訊。",
+      "10/04 第一次見面。",
+      "10/04 第一次牽手。",
+      "10/04 第一次抱抱。",
+      "10/04 第一次 KISS。",
+      "10/04 第一次羞羞。",
+      "10/04 在一起了。",
     ],
   },
 ];
@@ -178,6 +185,18 @@ const heartMomentSamples = [
   "09/21 大方承認 IG 歌是給我聽的。",
   "09/22 在那邊說要為了我剪短髮，但我還希望她做自己就好。",
   "09/22 我們互相叫了很曖昧的綽號。",
+  "09/25 給我看了張盛世美顏，結果也是三秒收回。",
+  "09/25 給我看了張超辣照片，結果不收回，盛世美顏就馬上收回。",
+  "09/26 給我看了素顏，但根本沒看清楚就收回，盪森～",
+  "09/26 談了一堆未來共識。",
+  "09/27 聊天超過十小時。",
+  "09/29 我們互相叫了很曖昧的綽號。",
+  "09/30 偷叫我男朋友。",
+  "10/04 送了我小白吊飾。",
+  "10/04 偷勾我的手。",
+  "10/04 跟我說了 YES。",
+  "10/04 親親抱抱羞羞。",
+  "10/05 又送了貼圖給我。",
 ];
 const heartMoments: HeartMoment[] = Array.from({ length: 100 }, (_, index) => ({
   id: index + 1,
@@ -189,10 +208,16 @@ const easterStorageKey = "fiveDay.sticker11HintSeen";
 const profileUnlockedStorageKey = "fiveDay.sticker11ProfileUnlocked";
 const dateInvitationStorageKey = "fiveDay.dateInvitationSubmitted";
 const accessGrantedStorageKey = "fiveDay.accessGranted";
-const accessAnswerHash = "c5fe62530a85d99669e122853ca95cbc";
+const accessAnswerHash = "9cc45047d8710a4e801842963ef27e37";
 const runtimeConfig = useRuntimeConfig();
 const route = useRoute();
 const isWallpaperPage = computed(() => route.path === "/wallpaper");
+const isFeedbackPage = computed(
+  () => route.path.replace(/\/$/, "") === "/date/feedback",
+);
+const isStandalonePage = computed(
+  () => isWallpaperPage.value || isFeedbackPage.value,
+);
 
 const orbitText =
   "MAYDAY • EVERYDAY • HAPPYDAY • GOODDAY • MAYDAY • EVERYDAY • HAPPYDAY • GOODDAY • ";
@@ -730,10 +755,11 @@ onMounted(() => {
   desktopQuery.addEventListener("change", requestSync);
   requestSync();
 });
-watch(isWallpaperPage, async (isWallpaper) => {
+watch(isStandalonePage, async (isStandalone) => {
   if (!import.meta.client) return;
-  if (isWallpaper) {
-    document.body.style.overflow = previousBodyOverflow;
+  if (isStandalone) {
+    if (isAccessGranted.value)
+      document.body.style.overflow = previousBodyOverflow;
     return;
   }
   await nextTick();
@@ -773,7 +799,7 @@ onBeforeUnmount(() => {
       >
         <span class="access-gate__tape" aria-hidden="true" />
         <p class="access-gate__eyebrow">A LITTLE QUESTION FOR YOU</p>
-        <h1 id="access-gate-title">請問我目前叫妳的綽號是什麼？</h1>
+        <h1 id="access-gate-title">妳現在都叫我什麼？（兩個字）</h1>
         <form @submit.prevent="verifyAccessAnswer">
           <label for="access-answer">把答案寫在這裡</label>
           <input
@@ -796,13 +822,14 @@ onBeforeUnmount(() => {
             {{ accessError }}
           </p>
           <button type="submit" :disabled="!accessAnswer.trim()">
-            開啟邀請
+            進入網站
           </button>
         </form>
       </section>
     </div>
   </Teleport>
   <WallpaperPage v-if="isWallpaperPage" />
+  <DateFeedbackPage v-else-if="isFeedbackPage" />
   <template v-else>
     <div class="site-canvas" :style="{ height: pageHeight }">
       <div class="desktop-doodles desktop-doodles--left" aria-hidden="true">
